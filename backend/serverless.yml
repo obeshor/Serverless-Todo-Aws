@@ -18,6 +18,7 @@ provider:
     TODOS_TABLE: Todos-v1-${self:provider.stage}
     INDEX_NAME: Index-v1-${self:provider.stage}
     IMAGES_S3_BUCKET: serverless-todo-images-obeshor-v1${self:provider.stage}
+    AUTH_0_SECRET: auth0Secret
 
 custom:
   documentation:
