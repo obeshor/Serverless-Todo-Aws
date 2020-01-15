@@ -1,5 +1,5 @@
 service:
-  name: serverless-todo
+  name: serverless-todo-app
 
 plugins:
   - serverless-webpack
@@ -12,12 +12,12 @@ provider:
   runtime: nodejs12.x
 
   stage: ${opt:stage, 'dev'}
-  region: ${opt:region, 'ap-southeast-2'}
+  region: ${opt:region, 'eu-west-2'}
 
   environment:
     TODOS_TABLE: Todos-v1-${self:provider.stage}
     INDEX_NAME: Index-v1-${self:provider.stage}
-    IMAGES_S3_BUCKET: serverless-todo-images-adw-v1${self:provider.stage}
+    IMAGES_S3_BUCKET: serverless-todo-images-obeshor-v1${self:provider.stage}
 
 custom:
   documentation:
@@ -141,50 +141,6 @@ functions:
 resources:
   Resources:
     # TODO: Add any necessary AWS resources
-    GatewayResponseDefault4XX:
-      Type: AWS::ApiGateway::GatewayResponse
-      Properties:
-        ResponseParameters:
-          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
-          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,PUT,PATCH'"
-          gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
-        ResponseType: DEFAULT_4XX
-        RestApiId:
-          Ref: ApiGatewayRestApi
-
-    AttachmentsBucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${self:provider.environment.IMAGES_S3_BUCKET}
-        CorsConfiguration:
-          CorsRules:
-            - AllowedOrigins:
-                - "*"
-              AllowedHeaders:
-                - "*"
-              AllowedMethods:
-                - GET
-                - PUT
-                - POST
-                - DELETE
-                - HEAD
-              MaxAge: 3000
-
-    BucketPolicy:
-      Type: AWS::S3::BucketPolicy
-      Properties:
-        PolicyDocument:
-          Id: MyPolicy
-          Version: "2012-10-17"
-          Statement:
-            - Sid: PublicReadForGetBucketObjects
-              Effect: Allow
-              Principal: "*"
-              Action: "s3:GetObject"
-              Resource: "arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*"
-        Bucket: !Ref AttachmentsBucket
-
     RequestBodyValidator:
       Type: AWS::ApiGateway::RequestValidator
       Properties:
@@ -219,3 +175,48 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
+    GatewayResponseDefault4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,PUT,PATCH'"
+          gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
+    
+    AttachmentsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.IMAGES_S3_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - "*"
+              AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
+
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Id: MyPolicy
+          Version: "2012-10-17"
+          Statement:
+            - Sid: PublicReadForGetBucketObjects
+              Effect: Allow
+              Principal: '*'
+              Action: 's3:GetObject'
+              Resource: 'arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*'
+        Bucket: !Ref AttachmentsBucket
+
+    
